@@ -6,40 +6,13 @@ interface/extract_interface$(BUILD_EXEEXT): FORCE
 	$(MAKE) $(AM_MAKEFLAGS) -C interface extract_interface$(BUILD_EXEEXT)
 endif
 endif
-SUBDIRS = . $(MAYBE_INTERFACE) doc
-DIST_SUBDIRS = $(MAYBE_INTERFACE) doc
+SUBDIRS = . $(MAYBE_INTERFACE)
+DIST_SUBDIRS = $(MAYBE_INTERFACE)
 
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = nostdinc subdir-objects
 
 lib_LTLIBRARIES = libisl.la
-noinst_PROGRAMS = isl_test isl_polyhedron_sample isl_pip \
-	isl_polyhedron_minimize isl_polytope_scan \
-	isl_polyhedron_detect_equalities \
-	isl_polyhedron_remove_redundant_equalities isl_cat \
-	isl_closure isl_bound isl_schedule isl_codegen isl_test_int \
-	isl_flow isl_flow_cmp isl_schedule_cmp
-TESTS = isl_test codegen_test.sh pip_test.sh bound_test.sh isl_test_int \
-	flow_test.sh schedule_test.sh
-if HAVE_CPP_ISL_H
-  CPP_H = include/isl/cpp.h include/isl/typed_cpp.h
-if HAVE_CXX11
-  noinst_PROGRAMS += isl_test2 isl_test_cpp
-  TESTS += isl_test2 isl_test_cpp isl_test_cpp_failed.sh
-endif
-endif
-if HAVE_CLANG
-if HAVE_CXX11
-  noinst_PROGRAMS += isl_test_cpp-checked isl_test_cpp-checked-conversion
-  TESTS += isl_test_cpp-checked isl_test_cpp-checked-conversion
-if HAVE_PYTHON
-  TESTS += isl_test_python.py
-  noinst_PYTHON = interface/isl.py
-  isl_test_python.py: interface/isl.py libisl.la
-endif
-endif
-endif
-TEST_EXTENSIONS = .py
 AM_TESTS_ENVIRONMENT = \
 	export PYTHONPATH=interface; \
 	export ISL_DYLD_LIBRARY_PATH=.libs; \
@@ -59,9 +32,6 @@ MP_SRC = \
 	imath_wrap/gmp_compat.c \
 	imath_wrap/imath.c \
 	imath_wrap/imrat.c
-
-noinst_PROGRAMS += isl_test_imath
-TESTS += isl_test_imath
 
 if SMALL_INT_OPT
 MP_SRC += isl_int_sioimath.h \
@@ -227,23 +197,6 @@ libisl_la_LIBADD = @MP_LIBS@
 libisl_la_LDFLAGS = -version-info @versioninfo@ \
 	@MP_LDFLAGS@
 
-isl_test_LDFLAGS = @MP_LDFLAGS@
-isl_test_LDADD = libisl.la @MP_LIBS@
-
-isl_test2_SOURCES = \
-	isl_test2.cc \
-	include/isl/cpp.h
-isl_test2_LDFLAGS = @MP_LDFLAGS@
-isl_test2_LDADD = libisl.la @MP_LIBS@
-
-isl_test_int_LDFLAGS = @MP_LDFLAGS@
-isl_test_int_LDADD = libisl.la @MP_LIBS@
-
-if IMATH_FOR_MP
-isl_test_imath_LDFLAGS = @MP_LDFLAGS@
-isl_test_imath_LDADD = libisl.la @MP_LIBS@
-endif
-
 isl_polyhedron_sample_LDADD = libisl.la
 isl_polyhedron_sample_SOURCES = \
 	polyhedron_sample.c
@@ -307,37 +260,6 @@ isl_cat_SOURCES = \
 isl_closure_LDADD = libisl.la
 isl_closure_SOURCES = \
 	closure.c
-
-isl_test_cpp_CPPFLAGS = $(AM_CPPFLAGS) -UCOMPILE_ERROR
-isl_test_cpp_SOURCES = \
-	isl_test_cpp.cc \
-	include/isl/cpp.h
-isl_test_cpp_LDFLAGS = @MP_LDFLAGS@
-isl_test_cpp_LDADD = libisl.la @MP_LIBS@
-
-# This program is not meant to be compiled by default.
-# In fact it is meant not to be compilable.
-# It is identical to isl_test_cpp, except that it gets compiled
-# with the COMPILE_ERROR flag set.
-EXTRA_PROGRAMS = isl_test_cpp_failed
-isl_test_cpp_failed_CPPFLAGS = $(AM_CPPFLAGS) -DCOMPILE_ERROR
-isl_test_cpp_failed_SOURCES = \
-	isl_test_cpp.cc \
-	include/isl/cpp.h
-isl_test_cpp_failed_LDFLAGS = @MP_LDFLAGS@
-isl_test_cpp_failed_LDADD = libisl.la @MP_LIBS@
-
-isl_test_cpp_checked_SOURCES = \
-	isl_test_cpp-checked.cc \
-	include/isl/cpp-checked.h
-isl_test_cpp_checked_LDFLAGS = @MP_LDFLAGS@
-isl_test_cpp_checked_LDADD = libisl.la @MP_LIBS@
-
-isl_test_cpp_checked_conversion_SOURCES = \
-	isl_test_cpp-checked-conversion.cc \
-	include/isl/cpp-checked-conversion.h
-isl_test_cpp_checked_conversion_LDFLAGS = @MP_LDFLAGS@
-isl_test_cpp_checked_conversion_LDADD = libisl.la @MP_LIBS@
 
 # dummy library that captures the dependencies on all headers
 # that are relevant for the bindings
@@ -612,14 +534,6 @@ EXTRA_DIST = \
 	isl_union_neg.c \
 	isl_union_pw_templ.c \
 	libisl-gdb.py \
-	doc/CodingStyle \
-	doc/SubmittingPatches \
-	doc/implementation.tex \
-	doc/isl.bib \
-	doc/mypod2latex \
-	doc/manual.tex \
-	doc/reading.tex \
-	doc/user.pod \
 	imath/gmp_compat.c \
 	imath/gmp_compat.h \
 	imath/imath.c \
@@ -631,13 +545,10 @@ EXTRA_DIST = \
 	python \
 	isl_test_cpp-generic.cc \
 	isl_test_cpp_failed.sh \
-	isl_test_python.py \
-	test_inputs
+	isl_test_python.py
 
 dist-hook:
 	echo @GIT_HEAD_VERSION@ > $(distdir)/GIT_HEAD_ID
-	(cd doc; make manual.pdf)
-	cp doc/manual.pdf $(distdir)/doc/
 
 pkgconfigdir=$(pkgconfig_libdir)
 pkgconfig_DATA = $(pkgconfig_libfile)
