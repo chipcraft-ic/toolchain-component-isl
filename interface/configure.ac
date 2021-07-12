@@ -4,6 +4,16 @@ AC_CONFIG_MACRO_DIR([../m4])
 AM_INIT_AUTOMAKE([foreign])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
+AC_CANONICAL_HOST
+AC_CANONICAL_BUILD
+# Allow the user to override the flags for
+# our build compiler if desired.
+if test x"${build}" = x"${host}" ; then
+  CFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD-${CFLAGS}}
+  CXXFLAGS_FOR_BUILD=${CXXFLAGS_FOR_BUILD-${CXXFLAGS}}
+  LDFLAGS_FOR_BUILD=${LDFLAGS_FOR_BUILD-${LDFLAGS}}
+fi
+
 AC_PROG_CXX
 AX_PROG_CXX_FOR_BUILD
 

@@ -18,6 +18,16 @@ if test "x$prefix" != "xNONE"; then
 	fi
 fi
 
+AC_CANONICAL_HOST
+AC_CANONICAL_BUILD
+# Allow the user to override the flags for
+# our build compiler if desired.
+if test x"${build}" = x"${host}" ; then
+  CFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD-${CFLAGS}}
+  CXXFLAGS_FOR_BUILD=${CXXFLAGS_FOR_BUILD-${CXXFLAGS}}
+  LDFLAGS_FOR_BUILD=${LDFLAGS_FOR_BUILD-${LDFLAGS}}
+fi
+
 AC_PROG_CC
 AC_PROG_CXX
 AX_PROG_CC_FOR_BUILD
